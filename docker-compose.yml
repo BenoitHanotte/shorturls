@@ -1,0 +1,10 @@
+shorturls:
+  build: .
+  ports:
+    - "8000:8000"
+  links:
+    - redis
+  environment:
+    - LOG_LEVEL=debug
+redis:
+  image: redis

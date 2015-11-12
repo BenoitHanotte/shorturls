@@ -35,7 +35,7 @@ func main() {
 	// Load the configuration from the config.yaml file
 	conf, err := config.LoadConfigYAML("config")
 	if err != nil { // no config could be read (eg: bad filename, missing value...)
-		log.WithField("err", err).Error("incorrect config, exiting")
+		log.WithError(err).Error("incorrect config, exiting")
 		return
 	}
 	log.Info("configuration loaded")
@@ -47,7 +47,7 @@ func main() {
 
 	r.HandleFunc("/{value:"+valueRegexp+"}", handlers.RetrieveHandler).
 		Methods("GET").Host(conf.Host)
-	r.HandleFunc("/shortlink/{value:"+valueRegexp+"}", handlers.CreateHandler).
+	r.HandleFunc("/shortlink/{value:"+valueRegexp+"}", handlers.CreateHandler(conf.ReachTimeoutMs)).
 		Methods("POST").Headers("Content-Type", "application/json").Host(conf.Host)
 	r.HandleFunc("/admin/{value:"+valueRegexp+"}", handlers.AdminHandler).
 		Methods("GET").Host(conf.Host)
@@ -56,7 +56,7 @@ func main() {
 	log.Info("starting the router...")
 	err = http.ListenAndServe(":"+strconv.Itoa(conf.Port), r)
 	if err != nil {
-		log.WithField("err", err).Error("could not start the router, exiting")
+		log.WithError(err).Error("could not start the router, exiting")
 		return
 	}
 }

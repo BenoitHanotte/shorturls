@@ -1,5 +1,6 @@
 # general configuration
-valueLength:  6
+valueLength:      6       # the length of the value corresponding to an url
+reachTimeoutMs:   2000    # the timeout in ms when checking the reachability of an url
 
 # The host and port of the server
 host:   dockerhost              # overriden with $HOST if set
@@ -10,3 +11,4 @@ proto:  http                    # overriden with $PROTO if set
 redisProto:   tcp               # overriden with $REDIS_PORT_6379_TCP_PROTO if set
 redisHost:    dockerhost        # overriden with $REDIS_PORT_6379_TCP_ADDR if set
 redisPort:    6379              # overriden with $REDIS_PORT_6379_PORT if set
+redisDB:      0

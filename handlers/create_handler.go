@@ -12,7 +12,6 @@ import (
 	"regexp"
 	"strconv"
 	"time"
-	"fmt"
 )
 
 // constant for the token generation
@@ -58,6 +57,8 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 			w.WriteHeader(400)
 			return
 		}
+
+		log.WithField("request", r).Debug("create request received")
 
 		// check that the url exists in the structure, and that it is correct
 		if body.Url == "" || !urlhelper.IsValid(body.Url) {
@@ -119,6 +120,9 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 	}
 }
 
+// generate a token
+// CAUTION: if the token is already present, generate a new one
+// If more than 3 successive collisions, use one more random character
 func generateToken(
 	suggestion string,
 	tokenLength int,
@@ -157,9 +161,6 @@ func generateToken(
 			offset += 1
 		}
 	}
-
-	fmt.Println("\n", token)
-
 	return token, nil
 }
 

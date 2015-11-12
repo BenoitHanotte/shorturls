@@ -40,18 +40,15 @@ func RedirectHandler(redisClient *redis.Client, conf *config.Config) func(w http
 			// no server error, we can still redirect the user
 		}
 
-		// debug log
-		log.WithFields(log.Fields{
-			"token": token,
-			"url":   url,
-			"count": count}).Debug("redirection data retrieved")
-
 		// redirect
 		w.Header().Set("Location", url)
 		// avoid caching the page on the client side to not bias the counts
 		w.Header().Set("cache-control", "private, max-age=0, no-cache")
 		w.WriteHeader(301) // moved permanently
 
-		log.WithField("token", token).Info("redirect request served")
+		log.WithFields(log.Fields{
+			"token": 	token,
+			"count": 	count,
+			"url": 		url}).Info("redirect request served")
 	}
 }

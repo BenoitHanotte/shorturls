@@ -15,4 +15,4 @@ RUN go install github.com/BenoitHanotte/shorturls
 ENTRYPOINT /go/bin/shorturls
 
 # Document that the service listens on port 8080.
-#EXPOSE 8080
+EXPOSE 8000

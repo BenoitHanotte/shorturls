@@ -1,7 +1,12 @@
+# general cofngiruation
+valueLength:  6
+
 # The host and port of the server
-host:   http://dockerhost     # overriden with $HOST if set
-port:   8080                  # overriden with $PORT if set
+host:   dockerhost              # overriden with $HOST if set
+port:   8000                    # overriden with $PORT if set
+proto:  http                    # overriden with $PROTO if set
 
 #redic conf
-redisHost: tcp://dockerhost   # overriden with $REDIS_PORT_6379_TCP if set
-redisPort: 6379               # overriden with $REDIS_PORT_6379_PORT if set
+redisProto:   tcp               # overriden with $REDIS_PORT_6379_TCP_PROTO if set
+redisHost:    dockerhost        # overriden with $REDIS_PORT_6379_TCP_ADDR if set
+redisPort:    6379              # overriden with $REDIS_PORT_6379_PORT if set

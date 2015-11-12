@@ -8,10 +8,13 @@ import (
 )
 
 type Config struct {
+	ValueLength	int		// the length of the value (eg: x8f9Rz for toto.com/x8f9Rz)
 	Host		string	// the host to use (eg: toto.com), default: HOST env variable
 	Port 		int		// the port of the server
+	Proto		string	// the protocol
 	RedisAddr 	string 	// the IP address of the redis node
 	RedisPort 	int    	// the port of the redis node
+	RedisProto	string	// the protocol for communication with redis
 }
 
 // Load a YAML config file and put values in a Config object
@@ -27,7 +30,7 @@ func LoadConfigYAML(filename string) (*Config, error) {
 	if err != nil {
 		// log the error
 		log.WithField("filename", filename).Error("config file not found")
-		return nil, errors.New("config file not found")
+		return nil, errors.New("file not found")
 	}
 
 	// overrides with environment variables (for debug, or to use docker links)
@@ -37,18 +40,27 @@ func LoadConfigYAML(filename string) (*Config, error) {
 	if os.Getenv("PORT")!="" {
 		viper.Set("port", os.Getenv("PORT"))
 	}
+	if os.Getenv("PROTO")!="" {
+		viper.Set("proto", os.Getenv("PROTO"))
+	}
 	if os.Getenv("REDIS_PORT_6379_TCP_PORT")!="" {
 		viper.Set("redisPort", os.Getenv("REDIS_PORT_6379_TCP_PORT"))
 	}
-	if os.Getenv("REDIS_PORT_6379_TCP")!="" {
-		viper.Set("redisHost", os.Getenv("REDIS_PORT_6379_TCP"))
+	if os.Getenv("REDIS_PORT_6379_TCP_ADDR")!="" {
+		viper.Set("redisHost", os.Getenv("REDIS_PORT_6379_TCP_ADDR"))
+	}
+	if os.Getenv("REDIS_PORT_6379_TCP_PROTO")!="" {
+		viper.Set("redisProto", os.Getenv("REDIS_PORT_6379_TCP_PROTO"))
 	}
 
 	config := Config{
-		Host:		viper.GetString("host"),
-		Port:		viper.GetInt("port"),
-		RedisAddr: 	viper.GetString("redisHost"),
-		RedisPort: 	viper.GetInt("redisPort")}
+		ValueLength:	viper.GetInt("valueLength"),
+		Host:			viper.GetString("host"),
+		Port:			viper.GetInt("port"),
+		Proto:			viper.GetString("proto"),
+		RedisAddr: 		viper.GetString("redisHost"),
+		RedisPort: 		viper.GetInt("redisPort"),
+		RedisProto: 	viper.GetString("redisProto")}
 
 	log.WithField("config", config).Debug("configuration loaded from YAML")
 

@@ -4,13 +4,6 @@ import (
 	"testing"
 )
 
-var tokenPresent0Times = "------"        // not present in redis
-var tokenPresent1Times = "-----_"        // will return present on the second call
-var tokenPresent3Times = "token3"        // will return present on the 4th call
-var tokenPresent5Times = "token5"
-var tokenPresent10Times = "token10"
-var tokenPresent25Times = "token20"
-
 type token struct {
 	Counts		int			// after how many calls should the function return that the token if free?
 	ExpRandChar	int			// how many random char are expected at the end?
@@ -18,7 +11,7 @@ type token struct {
 
 // the tokens
 // an underscore is a char that should theoretically be replaced by a random char
-// undercores are not possible random chars, so they should never be equal to the random chars
+// underscores are not possible random chars, so they should never be equal to the random chars
 var tokens = map[string]token{
 	"token0": token{0, 0},
 	"token_": token{1, 1},

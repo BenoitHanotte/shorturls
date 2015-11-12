@@ -3,8 +3,11 @@ package main
 import (
 	log "github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	"github.com/BenoitHanotte/shorturls/config"
+	"github.com/BenoitHanotte/shorturls/handlers"
 	"os"
-	"fmt"
+	"net/http"
+	"github.com/gorilla/mux"
+	"strconv"
 )
 
 func init() {
@@ -30,12 +33,31 @@ func main() {
 	log.Info("starting")
 
 	// Load the configuration from the config.yaml file
-	c, err := config.LoadConfigYAML("config")
+	conf, err := config.LoadConfigYAML("config")
 	if err != nil { // no config could be read (eg: bad filename, missing value...)
-		log.Error("no correct config found, exit the program")
+		log.WithField("err", err).Error("incorrect config, exiting")
 		return
 	}
 	log.Info("configuration loaded")
 
-	fmt.Println(c.RedisPort)
+
+	// create the router
+	r := mux.NewRouter()
+	// Routes
+	var valueRegexp string =  "[0-9a-zA-Z]{"+strconv.Itoa(conf.ValueLength)+"}"
+
+	r.HandleFunc("/{value:"+valueRegexp+"}", handlers.RetrieveHandler).
+		Methods("GET").Host(conf.Host)
+	r.HandleFunc("/shortlink/{value:"+valueRegexp+"}", handlers.CreateHandler).
+		Methods("POST").Headers("Content-Type", "application/json").Host(conf.Host)
+	r.HandleFunc("/admin/{value:"+valueRegexp+"}", handlers.AdminHandler).
+		Methods("GET").Host(conf.Host)
+
+	// Bind to a port and pass our router in
+	log.Info("starting the router...")
+	err = http.ListenAndServe(":"+strconv.Itoa(conf.Port), r)
+	if err!=nil {
+		log.WithField("err", err).Error("could not start the router, exiting")
+		return
+	}
 }

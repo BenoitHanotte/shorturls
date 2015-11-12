@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+	"fmt"
 )
 
 // constant for the token generation
@@ -31,6 +32,11 @@ type create_request_body struct {
 // the structure of a response (marshalled to JSON)
 type create_response_body struct {
 	Url string `json:"url"` // the url, marshalled to "url" and not "Url"
+}
+
+func init() {
+	// seed the random number generator
+	rand.Seed(time.Now().UnixNano())
 }
 
 // factory to create the handler
@@ -76,7 +82,7 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 		}
 
 		// generate the token
-		token, err := generateToken(redisClient, body.Custom, conf.TokenLength)
+		token, err := generateToken(body.Custom, conf.TokenLength, checkTokenExists(redisClient))
 		if err != nil {
 			log.WithError(err).Error("can not create a token, aborting")
 			w.WriteHeader(500)
@@ -113,7 +119,10 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 	}
 }
 
-func generateToken(redisClient *redis.Client, suggestion string, tokenLength int) (string, error) {
+func generateToken(
+	suggestion string,
+	tokenLength int,
+	checkTokenExistsFunc func (token string) (bool, error)) (string, error) {
 
 	// offset is the number of random characters generated at the end of the suggestion
 	var offset = mathhelper.Max(0, tokenLength-len(suggestion))
@@ -128,7 +137,7 @@ func generateToken(redisClient *redis.Client, suggestion string, tokenLength int
 		}
 
 		// check redis to see if this token already exists -> in that case generate a new one
-		exists, err := checkTokenExists(redisClient, token)
+		exists, err := checkTokenExistsFunc(token)
 		if err != nil {
 			return "", err
 		}
@@ -149,12 +158,17 @@ func generateToken(redisClient *redis.Client, suggestion string, tokenLength int
 		}
 	}
 
+	fmt.Println("\n", token)
+
 	return token, nil
 }
 
-// check if the token already exists
-func checkTokenExists(redisClient *redis.Client, token string) (bool, error) {
-	return redisClient.Exists(token).Result()
+// factory to create a function checking if a token is already in Redis
+// this is necessary to mock this function for the tests
+func checkTokenExists(redisClient *redis.Client) func (token string) (bool, error) {
+	return func (token string) (bool, error) {
+		return redisClient.Exists(token).Result()
+	}
 }
 
 // generate random strings of size n

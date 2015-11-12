@@ -8,15 +8,16 @@ import (
 )
 
 type Config struct {
-	ValueLength    	int    // the length of the value (eg: x8f9Rz for toto.com/x8f9Rz)
-	ReachTimeoutMs 	int    // the timeout in ms when checking the reachability of an url
-	Host           	string // the host to use (eg: toto.com), default: HOST env variable
-	Port           	int    // the port of the server
-	Proto          	string // the protocol
-	RedisAddr      	string // the IP address of the redis node
-	RedisPort      	int    // the port of the redis node
-	RedisProto     	string // the protocol for communication with redis
-	RedisDB   		string // the redis database
+	TokenLength    			int    			// the length of the value (eg: x8f9Rz for toto.com/x8f9Rz)
+	ReachTimeoutMs 			int    			// the timeout in ms when checking the reachability of an url
+	ExpirationTimeMonths	int				// the number of months before a short url is deleted
+	Host           			string 			// the host to use (eg: toto.com), default: HOST env variable
+	Port           			int    			// the port of the server
+	Proto          			string 			// the protocol
+	RedisHost      			string 			// the host of the redis node
+	RedisPort      			int    			// the port of the redis node
+	RedisDB        			int 			// the redis database
+	RedisPassword  			string 			// the password for redis
 }
 
 // Load a YAML config file and put values in a Config object
@@ -53,23 +54,23 @@ func LoadConfigYAML(filename string) (*Config, error) {
 	if os.Getenv("REDIS_PORT_6379_TCP_ADDR")!="" {
 		viper.Set("redisHost", os.Getenv("REDIS_PORT_6379_TCP_ADDR"))
 	}
-	if os.Getenv("REDIS_PORT_6379_TCP_PROTO")!="" {
-		viper.Set("redisProto", os.Getenv("REDIS_PORT_6379_TCP_PROTO"))
-	}
 	if os.Getenv("REDIS_DB")!="" {
 		viper.Set("redisDB", os.Getenv("REDIS_DB"))
 	}
+	if os.Getenv("REDIS_PASSWORD")!="" {
+		viper.Set("redisPassword", os.Getenv("REDIS_PASSWORD"))
+	}
 
 	config := Config{
-		ValueLength:	viper.GetInt("valueLength"),
+		TokenLength:	viper.GetInt("tokenLength"),
 		ReachTimeoutMs:	viper.GetInt("reachTimeoutMs"),
 		Host:			viper.GetString("host"),
 		Port:			viper.GetInt("port"),
 		Proto:			viper.GetString("proto"),
-		RedisAddr: 		viper.GetString("redisHost"),
+		RedisHost: 		viper.GetString("redisHost"),
 		RedisPort: 		viper.GetInt("redisPort"),
-		RedisProto: 	viper.GetString("redisProto"),
-		RedisDB:	 	viper.GetString("redisDB")}
+		RedisDB:	 	viper.GetInt("redisDB"),
+		RedisPassword:	viper.GetString("redisPassword")}
 
 	log.WithField("config", config).Debug("configuration loaded from YAML")
 

@@ -63,9 +63,18 @@
 			"Rev": "e37b56e207dda4d79b9defe0548e960658ee8b6b"
 		},
 		{
+			"ImportPath": "gopkg.in/bsm/ratelimit.v1",
+			"Rev": "bda20d5067a03094fc6762f7ead53027afac5f28"
+		},
+		{
 			"ImportPath": "gopkg.in/fsnotify.v1",
 			"Comment": "v1.2.1",
 			"Rev": "7be54206639f256967dd82fa767397ba5f8f48f5"
+		},
+		{
+			"ImportPath": "gopkg.in/redis.v3",
+			"Comment": "v3.2.13",
+			"Rev": "96fcac6a430e74927b638b73f373ad4d99de005b"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",

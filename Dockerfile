@@ -4,8 +4,9 @@ FROM golang
 
 ENV GOBIN /go/bin
 
-# Copy the local package files to the container's workspace.
+# Copy config to the /go folder (path used to run the executable)
 ADD "*.yaml" "/go/"
+# copy src files to src directory
 ADD "./" "/go/src/github.com/BenoitHanotte/shorturls/"
 
 # Build the program
@@ -14,5 +15,5 @@ RUN go install github.com/BenoitHanotte/shorturls
 # Run the program by default when the container starts.
 ENTRYPOINT /go/bin/shorturls
 
-# Document that the service listens on port 8080.
+# Document that the service listens on port 8000.
 EXPOSE 8000

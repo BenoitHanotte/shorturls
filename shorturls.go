@@ -36,7 +36,7 @@ func main() {
 	// Load the configuration from the config.yaml file
 	conf, err := config.LoadConfigYAML("config")
 	if err != nil { // no config could be read (eg: bad filename, missing value...)
-		log.WithError(err).Error("incorrect config, exiting")
+		log.WithError(err).Fatal("incorrect config, exiting")
 		return
 	}
 	log.Info("configuration loaded")
@@ -64,7 +64,7 @@ func main() {
 	log.Info("starting the router...")
 	err = http.ListenAndServe(":"+strconv.Itoa(conf.Port), r)
 	if err != nil {
-		log.WithError(err).Error("could not start the router, exiting")
+		log.WithError(err).Fatal("could not start the router, exiting")
 		return
 	}
 }

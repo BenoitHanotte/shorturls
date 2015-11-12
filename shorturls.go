@@ -9,8 +9,20 @@ import (
 
 func init() {
 	// configure the logger
+	// The level can be changed with the LOG_LEVEL environment variable, default=info
+	level := os.Getenv("LOG_LEVEL")
+	switch level {
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	case "warn":
+		log.SetLevel(log.WarnLevel)
+	case "error":
+		log.SetLevel(log.ErrorLevel)
+	default:
+		log.SetLevel(log.InfoLevel)
+	}
+	// set the output
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
 }
 
 func main() {

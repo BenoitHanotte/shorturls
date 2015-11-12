@@ -2,11 +2,11 @@ package main
 
 import (
 	log "github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/BenoitHanotte/shorturls/config"
 	"github.com/BenoitHanotte/shorturls/handlers"
-	"os"
 	"net/http"
-	"github.com/gorilla/mux"
+	"os"
 	"strconv"
 )
 
@@ -40,11 +40,10 @@ func main() {
 	}
 	log.Info("configuration loaded")
 
-
 	// create the router
 	r := mux.NewRouter()
 	// Routes
-	var valueRegexp string =  "[0-9a-zA-Z]{"+strconv.Itoa(conf.ValueLength)+"}"
+	var valueRegexp string = "[0-9a-zA-Z]{" + strconv.Itoa(conf.ValueLength) + "}"
 
 	r.HandleFunc("/{value:"+valueRegexp+"}", handlers.RetrieveHandler).
 		Methods("GET").Host(conf.Host)
@@ -56,7 +55,7 @@ func main() {
 	// Bind to a port and pass our router in
 	log.Info("starting the router...")
 	err = http.ListenAndServe(":"+strconv.Itoa(conf.Port), r)
-	if err!=nil {
+	if err != nil {
 		log.WithField("err", err).Error("could not start the router, exiting")
 		return
 	}

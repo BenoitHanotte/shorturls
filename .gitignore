@@ -26,3 +26,6 @@ _testmain.go
 # intellij 
 .idea/
 *.iml
+
+# volumes fo docker
+volumes/

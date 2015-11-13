@@ -1,0 +1,10 @@
+# volumes
+volumes/
+
+# doc
+doc/
+
+# intellij and git files
+.idea/
+.git/
+*.iml

@@ -46,7 +46,7 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 		// log request for debugging purposes (eg: crash, ...)
 		log.WithField("request", r).Debug("create request received")
 
-		// Unmarhall JSON to structure
+		// Unmarshall JSON to structure
 		decoder := json.NewDecoder(r.Body)
 
 		// unmarshall JSON

@@ -1,15 +1,15 @@
 # general configuration
 tokenLength:          6       # the length of the token corresponding to an url
 reachTimeoutMs:       2000    # the timeout in ms when checking the reachability of an url
-expirationTimeMonths:  3      # number of months beofre an short url is deleted
+expirationTimeMonths:  3      # number of months before an short url is deleted
 
 # The host and port of the server use for the short URLs returned
-host:   localhost               # overriden with $HOST if set
-port:   8000                    # overriden with $PORT if set
-proto:  http                    # overriden with $PROTO if set
+host:   localhost               # overridden with $HOST if set
+port:   8000                    # overridden with $PORT if set
+proto:  http                    # overridden with $PROTO if set
 
 #redis conf
-redisHost:      localhost         # overriden with $REDIS_PORT_6379_TCP_ADDR if set
-redisPort:      6379              # overriden with $REDIS_PORT_6379_TCP_PORT if set
-redisDB:        0                 # overriden with $REDIS_DB if set
-redisPassword:                    # overriden with $REDIS_PASSWORD if set
+redisHost:      localhost         # overridden with $REDIS_PORT_6379_TCP_ADDR if set
+redisPort:      6379              # overridden with $REDIS_PORT_6379_TCP_PORT if set
+redisDB:        0                 # overridden with $REDIS_DB if set
+redisPassword:                    # overridden with $REDIS_PASSWORD if set

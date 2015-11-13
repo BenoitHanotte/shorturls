@@ -84,10 +84,12 @@ func setUpLog() func() {
 		// consider any other value as a filepath
 		f, err := os.Create(logFile)
 		if err!=nil {
-			fmt.Errorf("Unable to open log file: "+err.Error())
+			fmt.Errorf("Unable to open log file: %s", err.Error())
+			os.Exit(1)
 		}
 		log.SetOutput(f)
 		return func() {
+			// defer closing the file at the end of main
 			defer f.Close()
 		}
 	}

@@ -1,12 +1,16 @@
 shorturls:
   build: .
   ports:
-    - "8000:8000"       # expose port 8000
+    - "8000:8000"                 # expose port 8000
   links:
-    - redis             # the link will set the environment variable required to communicate with redis
+    - redis                       # the link will set the environment variable required to communicate with redis
   environment:
-    - LOG_LEVEL=debug   # use the debug level for loging
+    - LOG_LEVEL=debug                             # use the debug level for loging
+    - LOG_FILE=/var/log/shorturls/shorturls.log    # the log file
   volumes:
-    - .:/log
+    - ./volumes/log:/var/log/shorturls            # mount log dir as volume
+
 redis:
   image: redis
+  volumes:
+      - ./volumes/redis:/data    # mount data dir as volume

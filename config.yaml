@@ -3,7 +3,7 @@ tokenLength:          6       # the length of the token corresponding to an url
 reachTimeoutMs:       2000    # the timeout in ms when checking the reachability of an url
 expirationTimeMonths:  3      # number of months before an short url is deleted
 
-# The host and port of the server use for the short URLs returned
+# The host and port of the server used for the short URLs returned
 host:   localhost               # overridden with $HOST if set
 port:   80                      # overridden with $PORT if set
 proto:  http                    # overridden with $PROTO if set

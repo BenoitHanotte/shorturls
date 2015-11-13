@@ -42,11 +42,11 @@ func main() {
 	var valueRegexp string = "[0-9a-zA-Z]{" + strconv.Itoa(conf.TokenLength) + "}"
 
 	r.HandleFunc("/{token:"+valueRegexp+"}", handlers.RedirectHandler(redisClient, conf)).
-		Methods("GET").Host(conf.Host)
+		Methods("GET")
 	r.HandleFunc("/shortlink", handlers.CreateHandler(redisClient, conf)).
-		Methods("POST").Headers("Content-Type", "application/json").Host(conf.Host)
+		Methods("POST").Headers("Content-Type", "application/json")
 	r.HandleFunc("/admin/{token:"+valueRegexp+"}", handlers.AdminHandler(redisClient, conf)).
-		Methods("GET").Host(conf.Host)
+		Methods("GET")
 
 	// Bind to a port and pass our router in
 	log.Info("starting the router...")

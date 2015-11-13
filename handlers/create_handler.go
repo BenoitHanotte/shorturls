@@ -24,8 +24,8 @@ const letterBytes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVW
 
 // the structure of a request (unmarshalled from JSON)
 type create_request_body struct {
-	Url    string // the url to shorten
-	Custom string // the requested personalisation, CAN BE NOT SET
+	Url   string // the url to shorten
+	Token string // the requested personalisation, CAN BE NOT SET
 }
 
 // the structure of a response (marshalled to JSON)
@@ -75,15 +75,15 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 		}
 
 		// validate the suggestion (only letters and digits)
-		match, _ := regexp.MatchString("^[0-9a-zA-Z]{0,"+strconv.Itoa(conf.TokenLength)+"}$", body.Custom)
+		match, _ := regexp.MatchString("^[0-9a-zA-Z]{0,"+strconv.Itoa(conf.TokenLength)+"}$", body.Token)
 		if !match {
-			log.WithField("custom", body.Custom).Error("invalid custom token, aborting")
+			log.WithField("custom", body.Token).Error("invalid custom token, aborting")
 			w.WriteHeader(400)
 			return
 		}
 
 		// generate the token
-		token, err := generateToken(body.Custom, conf.TokenLength, checkTokenExists(redisClient))
+		token, err := generateToken(body.Token, conf.TokenLength, checkTokenExists(redisClient))
 		if err != nil {
 			log.WithError(err).Error("can not create a token, aborting")
 			w.WriteHeader(500)

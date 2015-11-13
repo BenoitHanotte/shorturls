@@ -102,7 +102,7 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 		}
 
 		// set expiration time in
-		redisClient.ExpireAt(token, time.Now().AddDate(0, 3, 0))
+		redisClient.ExpireAt(token, time.Now().AddDate(0, conf.ExpirationTimeMonths, 0))
 
 		// log success
 		log.WithFields(log.Fields{

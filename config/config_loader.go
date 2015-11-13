@@ -62,15 +62,16 @@ func LoadConfigYAML(filename string) (*Config, error) {
 	}
 
 	config := Config{
-		TokenLength:	viper.GetInt("tokenLength"),
-		ReachTimeoutMs:	viper.GetInt("reachTimeoutMs"),
-		Host:			viper.GetString("host"),
-		Port:			viper.GetInt("port"),
-		Proto:			viper.GetString("proto"),
-		RedisHost: 		viper.GetString("redisHost"),
-		RedisPort: 		viper.GetInt("redisPort"),
-		RedisDB:	 	viper.GetInt("redisDB"),
-		RedisPassword:	viper.GetString("redisPassword")}
+		TokenLength:			viper.GetInt("tokenLength"),
+		ReachTimeoutMs:			viper.GetInt("reachTimeoutMs"),
+		ExpirationTimeMonths: 	viper.GetInt("expirationTimeMonths"),
+		Host:					viper.GetString("host"),
+		Port:					viper.GetInt("port"),
+		Proto:					viper.GetString("proto"),
+		RedisHost: 				viper.GetString("redisHost"),
+		RedisPort: 				viper.GetInt("redisPort"),
+		RedisDB:	 			viper.GetInt("redisDB"),
+		RedisPassword:			viper.GetString("redisPassword")}
 
 	return &config, nil
 }

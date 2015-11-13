@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+	"errors"
 )
 
 // constant for the token generation
@@ -75,15 +76,14 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 		}
 
 		// validate the suggestion (only letters and digits)
-		match, _ := regexp.MatchString("^[0-9a-zA-Z]{0,"+strconv.Itoa(conf.TokenLength)+"}$", body.Token)
-		if !match {
-			log.WithField("custom", body.Token).Error("invalid custom token, aborting")
+		if !validateToken(body.Token, conf.TokenLength) {
+			log.WithField("token", body.Token).Error("invalid custom token, aborting")
 			w.WriteHeader(400)
 			return
 		}
 
 		// generate the token
-		token, err := generateToken(body.Token, conf.TokenLength, checkTokenExists(redisClient))
+		token, err := generateFreeToken(body.Token, conf.TokenLength, checkTokenExists(redisClient))
 		if err != nil {
 			log.WithError(err).Error("can not create a token, aborting")
 			w.WriteHeader(500)
@@ -120,10 +120,16 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 	}
 }
 
+// function to validate the token suggested by the user
+func validateToken(token string, tokenLength int) {
+	match, _ := regexp.MatchString("^[0-9a-zA-Z]{0,"+strconv.Itoa(tokenLength)+"}$", token)
+	return match
+}
+
 // generate a token
 // CAUTION: if the token is already present, generate a new one
 // If more than 3 successive collisions, use one more random character
-func generateToken(
+func generateFreeToken(
 	suggestion string,
 	tokenLength int,
 	checkTokenExistsFunc func (token string) (bool, error)) (string, error) {
@@ -133,12 +139,7 @@ func generateToken(
 	var token = ""
 
 	for i := 0; i < maxRetries; i++ {
-		// generate a token
-		if len(suggestion) == 0 {
-			token = randStringBytesRmndr(offset)
-		} else {
-			token = suggestion[:tokenLength-offset] + randStringBytesRmndr(offset)
-		}
+		token = makeRandString(suggestion, tokenLength, offset)
 
 		// check redis to see if this token already exists -> in that case generate a new one
 		exists, err := checkTokenExistsFunc(token)
@@ -148,7 +149,7 @@ func generateToken(
 
 		if !exists {
 			// exit loop since there is no collision this time
-			break
+			return token, nil
 		}
 
 		log.WithFields(log.Fields{
@@ -161,7 +162,7 @@ func generateToken(
 			offset += 1
 		}
 	}
-	return token, nil
+	return "", errors.New("maximum number of retries reached")
 }
 
 // factory to create a function checking if a token is already in Redis
@@ -170,6 +171,19 @@ func checkTokenExists(redisClient *redis.Client) func (token string) (bool, erro
 	return func (token string) (bool, error) {
 		return redisClient.Exists(token).Result()
 	}
+}
+
+// make a random string from a starting string and an offset
+// (the number of random char at the end)
+func makeRandString(start string, length int, offset int) string {
+	var token string
+	// generate a token
+	if len(start) == 0 {
+		token = randStringBytesRmndr(offset)
+	} else {
+		token = start[:length -offset] + randStringBytesRmndr(offset)
+	}
+	return token
 }
 
 // generate random strings of size n

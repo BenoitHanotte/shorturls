@@ -18,7 +18,7 @@ var tokens = map[string]token{
 	"toke__": token{5, 2},
 	"tok___": token{7, 3},
 	"to____": token{10,4},
-	"______": token{20,6},
+	"______": token{25,6},
 }
 
 // tmporary var
@@ -57,39 +57,38 @@ func compareTokens(orig string, got string) (bool, string) {
 
 func TestGenerateToken(t *testing.T) {
 
-	token, _ := generateToken("token0", 6, mockCheckTokenExists)
+	token, _ := generateFreeToken("token0", 6, mockCheckTokenExists)
 	ok, msg := compareTokens("token0", token)
 	if !ok {
 		t.Error(msg)
 	}
 
-	token, _ = generateToken("token_", 6, mockCheckTokenExists)
+	token, _ = generateFreeToken("token_", 6, mockCheckTokenExists)
 	ok, msg = compareTokens("token_", token)
 	if !ok {
 		t.Error(msg)
 	}
 
-	token, _ = generateToken("toke__", 6, mockCheckTokenExists)
+	token, _ = generateFreeToken("toke__", 6, mockCheckTokenExists)
 	ok, msg = compareTokens("toke__", token)
 	if !ok {
 		t.Error(msg)
 	}
 
-	token, _ = generateToken("tok___", 6, mockCheckTokenExists)
+	token, _ = generateFreeToken("tok___", 6, mockCheckTokenExists)
 	ok, msg = compareTokens("tok___", token)
 	if !ok {
 		t.Error(msg)
 	}
 
-	token, _ = generateToken("to____", 6, mockCheckTokenExists)
+	token, _ = generateFreeToken("to____", 6, mockCheckTokenExists)
 	ok, msg = compareTokens("to____", token)
 	if !ok {
 		t.Error(msg)
 	}
 
-	token, _ = generateToken("______", 6, mockCheckTokenExists)
-	ok, msg = compareTokens("______", token)
-	if !ok {
+	token, err := generateFreeToken("______", 6, mockCheckTokenExists)
+	if err==nil {
 		t.Error(msg)
 	}
 }

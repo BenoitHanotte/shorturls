@@ -154,7 +154,7 @@ Location:       http://google.com
 cache-control:  private, max-age=0, no-cache
 ```
 
-The `cache-control` header is required so that the client and proxies do not cache the file which would not let the server to count the visits.
+The `cache-control` header is required so that the client and proxies do not cache the file which would not let the server count the visits.
 
 If the submitted token is not found, a `404: Not found` error is returned.
 

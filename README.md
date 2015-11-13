@@ -223,8 +223,7 @@ In order to set configuration specific to the environment (eg: prod, dev, docker
 - `PORT`: the port to use for the short URLs eturned (by default `80`)
 - `PROTO`: the potocol to use for the short URLs returned (eg: `htpp`).
 - `REDIS_PORT_6379_TCP_PORT`: the redis port (default: `6379`, variable set by the docker links)
-- `REDIS_PORT_6379_TCP_ADDR`: the host name to use (eg: `mydomain.com`, set by the docker links)
-- `REDIS_PORT_6379_TCP_ADDR`: the address of redis (eg: `213.43.21.56`)
+- `REDIS_PORT_6379_TCP_ADDR`: the address of redis (eg: `213.43.21.56`, set by the docker links)
 - `REDIS_DB`: the redis DB (default: `0`)
 - `REDIS_PASSWORD`: the redis password (default: `empty`)
 

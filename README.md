@@ -25,7 +25,7 @@ Thus, 3 actions are supported by the server:
 
 ![Architecture overview](doc/archi_overview.png)
 
-The server is Written in GO and is facing the user. Redis is used as datastore to store the data.
+The server is Written in GO and is facing the user. Redis is used as datastore to store the data. In order to support large loads, a Redis Cluster could be used, and multiple containers of the Go service could be used, with the users' requests being "routed" by a load balancer.
 
 ## 1.2 Data structure in datastore
 
@@ -129,6 +129,10 @@ If no token can be generated (no free token could be found in the datastore), a 
 
 If the token doesn't meet the preconditions, a reponse with a code `400: Bad request` will be returned with no body content. In that case the error is logged at the `error` level.
 
+
+A successful creation sequence is shown in the following sequence diagram:
+ ![Creation of a short url](doc/create.png)
+
 ### 2.3 Preconditions
 
 #### 2.3.1 Preconditions on the URL
@@ -145,7 +149,7 @@ The preconditions on the suggested token are the following:
 - the token's length must be of maximum 6 characters (value defined in the config)
 
 
-### 2.2 visit a short URL
+### 2.2 redirection by visiting a short URL
 
 When visiting a short url with a `GET` request on `http://myhost.com/[Tpken}` redirecting to `http://google.com` (as an example here), the server respond with an HTTP code `301: Moved permantantly` and the following header required to redirect the browser:
 
@@ -157,6 +161,9 @@ cache-control:  private, max-age=0, no-cache
 The `cache-control` header is required so that the client and proxies do not cache the file which would not let the server count the visits.
 
 If the submitted token is not found, a `404: Not found` error is returned.
+
+A successful redirection sequence is shown in the following sequence diagram:
+ ![Redirection](doc/redirect.png)
 
 ### 2.3 admin
 
@@ -171,6 +178,9 @@ A `GET` request on `/admin/{Token}` will return the following information in the
 ```
 
 If the submitted token is not found, a `404: Not found` error is returned.
+
+A successful admin request processing is shown in the following sequence diagram:
+ ![admin request](doc/admin.png)
 
 
 ## 3. Configuration
@@ -189,7 +199,7 @@ expirationTimeMonths:  3      # number of months before an short url is deleted
 
 # The host and port of the server use for the short URLs returned
 host:   localhost               # overridden with $HOST if set
-port:   8000                    # overridden with $PORT if set
+port:   80                      # overridden with $PORT if set
 proto:  http                    # overridden with $PROTO if set
 
 #redis conf
@@ -205,7 +215,7 @@ The values can be overridden by environment variables as described in the follow
 
 In order to set configuration specific to the environment (eg: prod, dev, docker container, ...), the configuration can be overridden with the following environment variables:
 - `HOST`: the host name to use for the short URLs (eg: `mydomain.com`)
-- `PORT`: the port to use for the short URLs eturned (by default `8000`)
+- `PORT`: the port to use for the short URLs eturned (by default `80`)
 - `PROTO`: the potocol to use for the short URLs returned (eg: `htpp`).
 - `REDIS_PORT_6379_TCP_PORT`: the redis port (default: `6379`, variable set by the docker links)
 - `REDIS_PORT_6379_TCP_ADDR`: the host name to use (eg: `mydomain.com`, set by the docker links)
@@ -227,24 +237,41 @@ The service can be easily deployed as two docker containers:
 - Go service
 - Redis datastore.
 
+> __By default, the port 80 is used for the service__ <br/>
+> It can be accessed under [http://127.0.0.1/](http://127.0.0.1/)
+
 Since the Go service require to communicate with Redis, it is linked to the Redis container, which sets the `REDIS_PORT_6379_TCP_PORT` and `REDIS_PORT_6379_TCP_ADDR` environment variables used by the Go service.
 
-### 4.1 Build and Run the containers
+### 4.1 Method 1: MakeFile
+
+A make file is present to quickly build and run the containers. It simply calls the `docker-compose` commands which build and run the containers.
+
+#### 4.1.1 Start
+
+the `make start` command will build and run the containers.
+
+#### 4.1.2 Stop
+
+the `make stop` command will stop the service and the containers.
+
+
+### 4.2 Method 2: Docker-compose
+
+#### 4.2.1 Build and Run the containers
 
 __to start the service, two steps are necessary:__
 
 1. `docker-compose build`: build the docker container (the Go service is built from source inside its container, the configuration is automatically copied)
 2. `docker-compose up -d`: starts the containers as a deamon.
 
-### 4.1 Log and Data Volumes
+#### 4.2.2 Stop the containers
+
+`docker-compose stop` will stop the container
+
+## 4.3 Log and Data Volumes
 
 In order to persist Redis data and to be able to acces the service log, two folders are monted as volumes from the containers, they are mounted in `./volumes`
 
 The log from the service is accessible in `./volumes/log/shorturls.log` by default.
-
-### 4.1 Stop the containers
-
-`docker-compose stop` will stop the container
-
 
 

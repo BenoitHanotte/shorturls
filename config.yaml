@@ -5,7 +5,7 @@ expirationTimeMonths:  3      # number of months before an short url is deleted
 
 # The host and port of the server use for the short URLs returned
 host:   localhost               # overridden with $HOST if set
-port:   8000                    # overridden with $PORT if set
+port:   80                      # overridden with $PORT if set
 proto:  http                    # overridden with $PROTO if set
 
 #redis conf

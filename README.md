@@ -268,7 +268,7 @@ __to start the service, two steps are necessary:__
 
 `docker-compose stop` will stop the container
 
-## 4.3 Log and Data Volumes
+### 4.3 Log and Data Volumes
 
 In order to persist Redis data and to be able to acces the service log, two folders are monted as volumes from the containers, they are mounted in `./volumes`
 

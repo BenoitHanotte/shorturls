@@ -23,9 +23,9 @@ func main() {
 
 	// Load the configuration from the config.yaml file
 	conf, err := config.LoadConfigYAML("config")
-	if err != nil { // no config could be read (eg: bad filename, missing value...)
+	if err != nil {
 		log.WithError(err).Fatal("incorrect config, exiting")
-		return
+		return	// do not exit since the log file still has to be closed by a defered function
 	}
 	log.Info("configuration loaded")
 
@@ -92,5 +92,6 @@ func setUpLog() func() {
 		}
 	}
 
+	// nothing to defer if log is not written to file
 	return func() {}
 }

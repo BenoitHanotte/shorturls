@@ -29,3 +29,6 @@ _testmain.go
 
 # volumes fo docker
 volumes/
+
+# doc
+doc/

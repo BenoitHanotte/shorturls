@@ -82,27 +82,45 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 			return
 		}
 
-		// generate the token
-		token, err := generateFreeToken(body.Token, conf.TokenLength, checkTokenExists(redisClient))
-		if err != nil {
-			log.WithError(err).Error("can not create a token, aborting")
-			w.WriteHeader(500)
-			return
-		}
+		// create a random token generator
+		randomTokenGenerator := randomTokenGenerator(body.Token, conf.TokenLength);
+		var token string
 
-		// save to redis with the token as the key
-		_, err = redisClient.HMSet(token,
-			"url", body.Url,
-			"creationTime", strconv.FormatInt(time.Now().Unix(), 10),
-			"count", "0").Result()
-		if err != nil {
-			log.WithError(err).Error("can not set the entry in Redis, aborting")
-			w.WriteHeader(500)
-			return
-		}
+		// try to insert with a new random token as long as the lock on the token cannot be acquired
+		for  {
+			token, err = randomTokenGenerator()
+			if err != nil {
+				// we tried to generate too many token, abort
+				log.WithError(err).Error("too many collisions for token, aborting")
+				w.WriteHeader(500)
+				return
+			}
 
-		// set expiration time in
-		redisClient.ExpireAt(token, time.Now().AddDate(0, conf.ExpirationTimeMonths, 0))
+			// use HSetNX to get lock on the Token
+			lockAcquired, err := redisClient.HSetNX(token, "url", body.Url).Result()
+			if lockAcquired {
+				// debug log
+				log.WithField("token", token).Debug("lock was acquired")
+
+				// lock could be acquired: we reserved the token !
+				// proceed by setting other fields
+				_, err = redisClient.HMSet(token, "creationTime", strconv.FormatInt(time.Now().Unix(), 10),
+					"count", "0").Result()
+				// set expiration time in 3 months
+				redisClient.ExpireAt(token, time.Now().AddDate(0, conf.ExpirationTimeMonths, 0))
+				break;	// leave the loop: don't try to generate a new token
+			}
+
+			// if there was an error while setting in the map (more than just key already present)
+			if err != nil {
+				log.WithError(err).Error("can not set the entry in Redis, aborting")
+				w.WriteHeader(500)
+				return
+			}
+
+			// debug log
+			log.WithField("token", token).Debug("could not acquire lock, retrying if allowed")
+		}
 
 		// log success
 		log.WithFields(log.Fields{
@@ -121,69 +139,41 @@ func CreateHandler(redisClient *redis.Client, conf *config.Config) func(w http.R
 }
 
 // function to validate the token suggested by the user
-func validateToken(token string, tokenLength int) {
+func validateToken(token string, tokenLength int) bool {
 	match, _ := regexp.MatchString("^[0-9a-zA-Z]{0,"+strconv.Itoa(tokenLength)+"}$", token)
 	return match
 }
 
-// generate a token
-// CAUTION: if the token is already present, generate a new one
-// If more than 3 successive collisions, use one more random character
-func generateFreeToken(
-	suggestion string,
-	tokenLength int,
-	checkTokenExistsFunc func (token string) (bool, error)) (string, error) {
+// Factory to create a function which generates random token
+func randomTokenGenerator(suggestion string, tokenLength int) func() (string, error) {
 
-	// offset is the number of random characters generated at the end of the suggestion
-	var offset = mathhelper.Max(0, tokenLength-len(suggestion))
-	var token = ""
+	offset := mathhelper.Max(0, tokenLength-len(suggestion))		// nb of char to randomize at the end of the token
+	retry := 0														// current retry
 
-	for i := 0; i < maxRetries; i++ {
-		token = makeRandString(suggestion, tokenLength, offset)
+	return func() (string, error) {
 
-		// check redis to see if this token already exists -> in that case generate a new one
-		exists, err := checkTokenExistsFunc(token)
-		if err != nil {
-			return "", err
+		if retry >maxRetries {
+			return "", errors.New("maximum number of retry reached to generate token")
 		}
 
-		if !exists {
-			// exit loop since there is no collision this time
-			return token, nil
+		// make a random token
+		var token string
+
+		if len(suggestion) == 0 {
+			token = randStringBytesRmndr(offset)
+		} else {
+			token = suggestion[:tokenLength - offset] + randStringBytesRmndr(offset)
 		}
 
-		log.WithFields(log.Fields{
-			"token":  token,
-			"retry":  i,
-			"offset": offset}).Debug("collision while generating new token")
-
-		// if already exists, generate another token and try again until a correct token is generated
-		if (i == 0 || i%retriesToRaiseOffset == 0) && offset < tokenLength {
+		// raise offset is too many retries
+		if (retry == 0 && offset==0 || retry %retriesToRaiseOffset == 0) && offset < tokenLength {
 			offset += 1
 		}
-	}
-	return "", errors.New("maximum number of retries reached")
-}
 
-// factory to create a function checking if a token is already in Redis
-// this is necessary to mock this function for the tests
-func checkTokenExists(redisClient *redis.Client) func (token string) (bool, error) {
-	return func (token string) (bool, error) {
-		return redisClient.Exists(token).Result()
+		retry++;
+		return token, nil
 	}
-}
 
-// make a random string from a starting string and an offset
-// (the number of random char at the end)
-func makeRandString(start string, length int, offset int) string {
-	var token string
-	// generate a token
-	if len(start) == 0 {
-		token = randStringBytesRmndr(offset)
-	} else {
-		token = start[:length -offset] + randStringBytesRmndr(offset)
-	}
-	return token
 }
 
 // generate random strings of size n

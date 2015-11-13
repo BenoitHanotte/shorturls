@@ -2,93 +2,67 @@ package handlers
 
 import (
 	"testing"
+	"strconv"
 )
 
 type token struct {
-	Counts		int			// after how many calls should the function return that the token if free?
-	ExpRandChar	int			// how many random char are expected at the end?
+	Original	string		// the suggested token
+	Expected	string		// the expected token (a missing letter is a random char)
+	ErrorExp    bool		// an error is expected? (eg: too many retires)
+	Counts		int			// after how many calls should the lock be acquired
 }
 
 // the tokens
 // an underscore is a char that should theoretically be replaced by a random char
 // underscores are not possible random chars, so they should never be equal to the random chars
-var tokens = map[string]token{
-	"token0": token{0, 0},
-	"token_": token{1, 1},
-	"toke__": token{5, 2},
-	"tok___": token{7, 3},
-	"to____": token{10,4},
-	"______": token{25,6},
-}
-
-// tmporary var
-var lastTokenKey = "";
-var curCount = 0;
-
-// check if the token already exists
-func mockCheckTokenExists(token string) (bool, error) {
-
-	// if it is a token from the map: reinitiliaze the current count and last token
-	_, ok := tokens[token]
-	if ok {
-		lastTokenKey = token
-		curCount = 0;
-	}
-
-	tokenData := tokens[lastTokenKey]
-	if curCount == tokenData.Counts {
-		return false, nil
-	}
-
-	curCount++;
-	return true, nil
+var tokens = []token{
+	token{"token0", "token0", false, 0},
+	token{"token1", "token", false, 1},
+	token{"token2", "toke", false, 5},
+	token{"token3", "tok", false, 7},
+	token{"token4", "to", false, 10},
+	token{"token5", "", true, 25},
+	token{"", "", false, 0},
+	token{"a", "a", false, 0},
+	token{"bb", "bb", false, 0},
+	token{"cccc", "cccc", false, 0},
+	token{"ddddd", "ddddd", false, 0},
+	token{"eeee", "eee", false, 2},
+	token{"ffff", "", false, 10},
 }
 
 // returns true if the token was expected, other false and a human readable error string
-func compareTokens(orig string, got string) (bool, string) {
-	tokenData := tokens[orig]
+func validToken(orig token, got string, gotErr error, expectedLength int) (bool, string) {
 
-	if got[:len(orig)-tokenData.ExpRandChar] == orig[:len(orig)-tokenData.ExpRandChar] &&
-	(tokenData.ExpRandChar==0 || got[len(orig)-tokenData.ExpRandChar:] != orig[len(orig)-tokenData.ExpRandChar:]) {
+	if orig.ErrorExp && gotErr==nil {
+		return false, "Should have raised error: for '"+orig.Original+"' got '"+ got+"'"
+	} else if orig.ErrorExp && gotErr!=nil {
 		return true, ""
 	}
-	return false, "For '"+orig+"', got '"+got+"'"
+
+	if len(got)!=expectedLength {
+		return false, "Wrong length: for '"+orig.Original+"' got '"+
+		got+"', expected: '"+orig.Expected+"'"
+	}
+
+	for i:=0; i<len(orig.Expected); i++ {
+		if orig.Expected[i]!=got[i] {
+			return false, "Wrong char at pos "+strconv.Itoa(i)+": for '"+orig.Original+"' got '"+
+			got+"', expected: '"+orig.Expected+"'"
+		}
+	}
+
+	return true, ""
 }
 
 func TestGenerateToken(t *testing.T) {
 
-	token, _ := generateFreeToken("token0", 6, mockCheckTokenExists)
-	ok, msg := compareTokens("token0", token)
-	if !ok {
-		t.Error(msg)
-	}
-
-	token, _ = generateFreeToken("token_", 6, mockCheckTokenExists)
-	ok, msg = compareTokens("token_", token)
-	if !ok {
-		t.Error(msg)
-	}
-
-	token, _ = generateFreeToken("toke__", 6, mockCheckTokenExists)
-	ok, msg = compareTokens("toke__", token)
-	if !ok {
-		t.Error(msg)
-	}
-
-	token, _ = generateFreeToken("tok___", 6, mockCheckTokenExists)
-	ok, msg = compareTokens("tok___", token)
-	if !ok {
-		t.Error(msg)
-	}
-
-	token, _ = generateFreeToken("to____", 6, mockCheckTokenExists)
-	ok, msg = compareTokens("to____", token)
-	if !ok {
-		t.Error(msg)
-	}
-
-	token, err := generateFreeToken("______", 6, mockCheckTokenExists)
-	if err==nil {
-		t.Error(msg)
+	for _, orig := range tokens {
+		randomGenerator := randomTokenGenerator(orig.Original, 6)
+		var got string
+		var err error
+		for i:=0; i<= orig.Counts; i++ { got, err = randomGenerator()}
+		ok, msg := validToken(orig, got, err, 6)
+		if !ok { t.Error(msg) }
 	}
 }

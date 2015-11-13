@@ -72,7 +72,5 @@ func LoadConfigYAML(filename string) (*Config, error) {
 		RedisDB:	 	viper.GetInt("redisDB"),
 		RedisPassword:	viper.GetString("redisPassword")}
 
-	log.WithField("config", config).Debug("configuration loaded from YAML")
-
 	return &config, nil
 }

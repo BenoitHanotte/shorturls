@@ -73,7 +73,7 @@ shorturls.go                        The main logic, entrypoint of the program
 
 a short URL can be created with a `POST` request on the `/shortlink` endpoint. Its body must be a JSON object. The different possible values for this body depend on whether the user submits a custom token to use or not. These possibilities are explained in the following subsections. 
 
-When a token is generated (from a suggested token, or completely randomly), the service tries to acquire the __lock__ on this token in Redis. If the lock can not be acquired, another token will be generated and the service will try to use this one. After each 3 unsuccessful retries, the server uses one more random character in the token (while keeping its length to 6 chars). After 20 unsuccessful tokens, an error is logged and the request processing is aborted. A reponse with a code 500 is then returned.
+When a token is generated (from a suggested token, or completely randomly), the service tries to acquire the __lock__ on this token in Redis. If the lock can not be acquired, another token will be generated and the service will try to use this one. After each 3 unsuccessful retries, the server uses one more random character in the token (while keeping its length to 6 chars). After 20 unsuccessful tokens, an error is logged and the request processing is aborted. A response with a code 500 is then returned.
 
 #### 2.1.1 With no suggested token
 
@@ -89,7 +89,7 @@ Content-type: application/json
 }
 ```
 
-If the preconditions are met (explained here under), the short url will be created and the reponse will have an HTTP code `201: Created` with a JSON repsonse body containing the short url:
+If the preconditions are met (explained here under), the short url will be created and the response will have an HTTP code `201: Created` with a JSON repsonse body containing the short url:
  
 ```
 {
@@ -119,7 +119,7 @@ Content-Type: application/json
 
 If this token meets the precondition, a short URL will be created. If the token is already used, its last characters will be replaced by random ones (eg: `choicX`, `choi7D`, `choPc0`...). The server first tries the suggested token, it is used, it replaces its last character with a random one. If after three more generated tokens with one random character still no free token is found, the server uses two random characters at the end of the token, and so on until it finds a free token. The length of the token is always equal to 6 (defined in the conf)
 
-If the generation of the token is successful, the short url will be created and the reponse will have an HTTP code `201: Created` with a JSON repsonse body containing the short url:
+If the generation of the token is successful, the short url will be created and the response will have an HTTP code `201: Created` with a JSON repsonse body containing the short url:
  
 ```
 {
@@ -127,9 +127,9 @@ If the generation of the token is successful, the short url will be created and 
 }
 ``` 
 
-If no token can be generated (no free token could be found in the datastore), a reponse with a code `500` is returned.
+If no token can be generated (no free token could be found in the datastore), a response with a code `500` is returned.
 
-If the token doesn't meet the preconditions, a reponse with a code `400: Bad request` will be returned with no body content. In that case the error is logged at the `error` level.
+If the token doesn't meet the preconditions, a response with a code `400: Bad request` will be returned with no body content. In that case the error is logged at the `error` level.
 
 
 A successful creation sequence is shown in the following sequence diagram:
@@ -169,7 +169,7 @@ A successful redirection sequence is shown in the following sequence diagram:
 
 ### 2.3 GET /admin/{token}: admin
 
-A `GET` request on `/admin/{Token}` will return the following information in the JSON ody of the reponse:
+A `GET` request on `/admin/{Token}` will return the following information in the JSON body of the response:
 
 ```
 {

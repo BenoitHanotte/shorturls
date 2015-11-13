@@ -69,7 +69,7 @@ shorturls.go                        The main logic, entrypoint of the program
 
 3 actions are supported by the server, and are descried in this section
 
-### 2.1 create a short URL
+### 2.1 POST /shortlink: create a short URL
 
 a short URL can be created with a `POST` request on the `/shortlink` endpoint. Its body must be a JSON object. The different possible values for this body depend on whether the user submits a custom token to use or not. These possibilities are explained in the following subsections. 
 
@@ -151,7 +151,7 @@ The preconditions on the suggested token are the following:
 - the token's length must be of maximum 6 characters (value defined in the config)
 
 
-### 2.2 redirection by visiting a short URL
+### 2.2 GET /{token}: redirection from a short URL
 
 When visiting a short url with a `GET` request on `http://myhost.com/[Tpken}` redirecting to `http://google.com` (as an example here), the server respond with an HTTP code `301: Moved permantantly` and the following header required to redirect the browser:
 
@@ -167,7 +167,7 @@ If the submitted token is not found, a `404: Not found` error is returned.
 A successful redirection sequence is shown in the following sequence diagram:
  ![Redirection](doc/redirect.png)
 
-### 2.3 admin
+### 2.3 GET /admin/{token}: admin
 
 A `GET` request on `/admin/{Token}` will return the following information in the JSON ody of the reponse:
 

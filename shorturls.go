@@ -4,7 +4,7 @@ import (
 	log "github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	"github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/gopkg.in/redis.v3"
-	"github.com/BenoitHanotte/shorturls/config"
+	"github.com/BenoitHanotte/shorturls/confighelper"
 	"github.com/BenoitHanotte/shorturls/handlers"
 	"net/http"
 	"os"
@@ -22,7 +22,7 @@ func main() {
 	log.Info("starting")
 
 	// Load the configuration from the config.yaml file
-	conf, err := config.LoadConfigYAML("config")
+	conf, err := confighelper.LoadConfigYAML("config")
 	if err != nil {
 		log.WithError(err).Fatal("incorrect config, exiting")
 		return	// do not exit since the log file still has to be closed by a defered function

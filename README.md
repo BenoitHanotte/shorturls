@@ -41,8 +41,11 @@ At each visit the `count` field is incremented by one.
 ## 1.3 Code structure
 
 ```
-config/
-    - config_loader.go              A file implementing the logic required to load and
+- config.yaml                         The configuration file
+- shorturls.go                        The main logic, entrypoint of the program
+
+confighelper/
+    - confighelper.go               A file implementing the logic required to load and
                                     process the configuration
 
 handler/
@@ -59,9 +62,6 @@ urlhelper/
     - urlhelper.go                  A file implementing function to validate a url and
                                     check its reachability
     - urlhelper_test.go             Tests for urlhelper
-    
-config.yaml                         The configuration file
-shorturls.go                        The main logic, entrypoint of the program
 ```
 
 

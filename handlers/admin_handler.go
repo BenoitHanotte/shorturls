@@ -5,7 +5,7 @@ import (
 	log "github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 	"github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/github.com/gorilla/mux"
 	"github.com/BenoitHanotte/shorturls/Godeps/_workspace/src/gopkg.in/redis.v3"
-	"github.com/BenoitHanotte/shorturls/config"
+	"github.com/BenoitHanotte/shorturls/confighelper"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ type admin_response_body struct {
 }
 
 // factory to create the handler
-func AdminHandler(redisClient *redis.Client, conf *config.Config) func(w http.ResponseWriter, r *http.Request) {
+func AdminHandler(redisClient *redis.Client, conf *confighelper.Config) func(w http.ResponseWriter, r *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 

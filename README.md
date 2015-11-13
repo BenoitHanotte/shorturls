@@ -213,6 +213,9 @@ redisPassword:                    # overridden with $REDIS_PASSWORD if set
 
 The values can be overridden by environment variables as described in the following subsection.
 
+> __By default, the port 80 is used for the service__ <br/>
+> It can be accessed under [http://127.0.0.1/](http://127.0.0.1/)
+
 ### 3.2 Override conf with environment variables
 
 In order to set configuration specific to the environment (eg: prod, dev, docker container, ...), the configuration can be overridden with the following environment variables:
